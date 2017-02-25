@@ -1,25 +1,7 @@
-<<<<<<< HEAD
 # Rstudio setup files
 .Rproj.user
 .Ruserdata
 
-=======
-<<<<<<< HEAD
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-
-# output
-*.pdf
-*.doc
-
-#figures
-*.jpg
-*.png
-*.gif
-=======
->>>>>>> 49749e38511d7f76c9219e76812de2f514977732
 # History files
 .Rhistory
 .Rapp.history
@@ -53,7 +35,6 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-<<<<<<< HEAD
 
 # output
 *.pdf
@@ -63,6 +44,3 @@ vignettes/*.pdf
 *.jpg
 *.png
 *.gif
-=======
->>>>>>> db383ef398306deab4380e1ec2ad7730cc50604b
->>>>>>> 49749e38511d7f76c9219e76812de2f514977732
