@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# output
+*.pdf
+*.doc
+
+#figures
+*.jpg
+*.png
+*.gif
