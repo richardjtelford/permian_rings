@@ -5,14 +5,14 @@ library("ggfortify")
 library("dplyr")
 library("tidyr")
 library("zoo")
+library("assertthat")
 
 #import data
 permian_rings <- read_excel("data/L&R2017.data.xlsx")
 
 names(permian_rings)[1:2] <- c("index", "mean_curve")
-table(names(permian_rings))#k6050 repeated
 
-plot(permian_rings[,  names(permian_rings) == "K6050"])
+assert_that(!anyDuplicated(names(permian_rings)))#Check no duplicate column names
 
 #plot data
 gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
