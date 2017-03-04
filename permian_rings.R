@@ -47,10 +47,11 @@ gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
 
 gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
   left_join(inMean, by = c("tree" = "tree")) %>%
-  filter(used, !is.na(width)) %>% 
+  filter(!is.na(width)) %>% 
   ggplot(aes(x = index, y = tree, fill = width)) + 
   geom_raster() +
   scale_fill_gradient2(mid = "grey95") +
+  facet_wrap(~used, ncol = 1, scales = "free_y", strip.position = "right") +
   theme_bw()
 
 
