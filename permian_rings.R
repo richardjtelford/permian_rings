@@ -135,16 +135,29 @@ bothSpec <- rbind(
 
 g %+% bothSpec + aes(colour = curve)
 
+
+#individual series rings
+allSpec <- plyr::ldply(pr, function(x){
+  spec <- spectrum(x, plot = FALSE, na.action = na.omit)
+  fortify(spec)
+})
+
+g %+% allSpec + aes(colour = .id)
+
+
 #acf
 autoplot(acf(permian_rings$mean_curve))
 ar(permian_rings$mean_curve)
 
 
 # white noise smoothed
-tst <- rnorm(nrow(permian_rings))# * 100)
-tst_3smooth <- rollmean(x = tst, k = 3)#rolling mean
-spec3 <- spectrum(tst_3smooth, plot = FALSE)
-g %+% fortify(spec3)
+specSim <- plyr::rdply(.n = 11, .expr = {
+  tst <- rnorm(nrow(permian_rings))# * 100)
+  tst_3smooth <- rollmean(x = tst, k = 3)#rolling mean
+  spec3 <- spectrum(tst_3smooth, plot = FALSE)
+  fortify(spec3)
+})
+g %+% specSim + aes(colour = as.factor(.n))
 
 ##comparison with sunspots
 sun_spec <- spectrum(sunspot.year, plot = FALSE)
