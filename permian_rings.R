@@ -60,7 +60,32 @@ samp_depth <- data_frame(
   depth = rowSums(!is.na(permian_rings[, inMean$tree[inMean$used]]))
 )
 
-ggplot(samp_depth, aes(x = index, y = depth)) + geom_bar(stat = "identity", width = 1)
+ggplot(samp_depth, aes(x = index, y = depth)) + 
+  geom_bar(stat = "identity", width = 1)
+
+##agreement
+
+samp_depth$agreement <- apply(permian_rings[, inMean$tree[inMean$used]], 1, sd, na.rm = TRUE)
+
+ggplot(samp_depth, aes(x = index, y = agreement, colour = depth)) + 
+  geom_line()
+
+
+## crossdating
+par(mfrow = rep(sum(inMean$used) - 1, 2), 
+    mar = c(1.7, 1.7,.1,.1),
+    mgp = c(1.5, .5, 0))
+
+sapply(2:sum(inMean$used), function(i){
+  sapply(1:(sum(inMean$used) - 1), function(j){
+    if(i > j){
+      pr <- permian_rings[, inMean$tree[inMean$used]]
+      ccf(pr[,i], pr[,j], na.action = na.omit)
+    } else{
+      plot(0, type = "n", ann = FALSE, bty = "n", axes = FALSE)
+    }
+  })
+})
 
 ## simple spectrum
 spec <- spectrum(permian_rings$mean_curve, plot = FALSE)
