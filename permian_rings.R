@@ -6,6 +6,7 @@ library("dplyr")
 library("tidyr")
 library("zoo")
 library("assertthat")
+library("GGally")
 
 #import data
 permian_rings <- read_excel("data/L&R2017.data.xlsx")
@@ -72,20 +73,47 @@ ggplot(samp_depth, aes(x = index, y = agreement, colour = depth)) +
 
 
 ## crossdating
-par(mfrow = rep(sum(inMean$used) - 1, 2), 
-    mar = c(1.7, 1.7,.1,.1),
-    mgp = c(1.5, .5, 0))
+geom_ccf <- function(data, mapping, ..., lim = NA){  
+  x  <- eval(mapping$x, data)
+  y <-  eval(mapping$y, data)
+  CCF <- ccf(x, y, na.action = na.omit, plot = FALSE, ...)
+  autoplot(CCF) + ylim(-lim, lim)
+}
+pr <- permian_rings[, inMean$tree[inMean$used]]
 
-sapply(2:sum(inMean$used), function(i){
-  sapply(1:(sum(inMean$used) - 1), function(j){
-    if(i > j){
-      pr <- permian_rings[, inMean$tree[inMean$used]]
-      ccf(pr[,i], pr[,j], na.action = na.omit)
-    } else{
-      plot(0, type = "n", ann = FALSE, bty = "n", axes = FALSE)
-    }
+max_ccf <- function(dat, ...){
+  res <- sapply(2:ncol(dat), function(i){
+    sapply(1:(ncol(dat) - 1), function(j){
+      if(i > j){
+        CCF <- ccf(dat[,i], dat[,j], na.action = na.omit, plot = FALSE, ...)
+        max(abs(CCF$acf), na.rm = TRUE)
+       } else{
+        NA
+      }
+    })
   })
-})
+  max(res, na.rm = TRUE)
+}
+
+gpairs_lower <- function(g){
+  g$plots <- g$plots[-(1:g$nrow)]
+  g$yAxisLabels <- g$yAxisLabels[-1]
+  g$nrow <- g$nrow -1
+  
+  g$plots <- g$plots[-(seq(g$ncol, length(g$plots), by = g$ncol))]
+  g$xAxisLabels <- g$xAxisLabels[-g$ncol]
+  g$ncol <- g$ncol - 1
+  
+  g
+}
+
+g <- ggpairs(setNames(pr, make.names(names(pr))), 
+        lower = list(continuous = wrap(geom_ccf, lag.max = 20, lim = max_ccf(pr, max.lag = 20))),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = 'blankDiag')
+        )
+
+gpairs_lower(g)
 
 ## simple spectrum
 spec <- spectrum(permian_rings$mean_curve, plot = FALSE)
