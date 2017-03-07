@@ -54,7 +54,13 @@ gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
   facet_wrap(~used, ncol = 1, scales = "free_y", strip.position = "right") +
   theme_bw()
 
+## sampling depth
+samp_depth <- data_frame(
+  index = permian_rings$index, 
+  depth = rowSums(!is.na(permian_rings[, inMean$tree[inMean$used]]))
+)
 
+ggplot(samp_depth, aes(x = index, y = depth)) + geom_bar(stat = "identity", width = 1)
 
 ## simple spectrum
 spec <- spectrum(permian_rings$mean_curve, plot = FALSE)
