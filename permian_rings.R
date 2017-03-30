@@ -7,20 +7,21 @@ library("tidyr")
 library("zoo")
 library("assertthat")
 library("GGally")
+library("dplR")
 
 #import data
-permian_rings <- read_excel("data/L&R2017.data.xlsx")
+permian_rings0 <- read_excel("data/L&R2017.data.xlsx")
 
-names(permian_rings)[1:2] <- c("index", "mean_curve")
+names(permian_rings0)[1:2] <- c("index", "mean_curve")
 
-assert_that(!anyDuplicated(names(permian_rings)))#Check no duplicate column names
+assert_that(!anyDuplicated(names(permian_rings0)))#Check no duplicate column names
 
 #check standardised
 tolerance = .Machine$double.eps^0.5 # assumes Matlab has same precision
 
-assert_that(all(colMeans(permian_rings[, -(1:2)], na.rm = TRUE) < tolerance))
+assert_that(all(colMeans(permian_rings0[, -(1:2)], na.rm = TRUE) < tolerance))
 
-permian_rings[, -1] <- scale(permian_rings[, -1])
+permian_rings[, -1] <- scale(permian_rings0[, -1])
 assert_that(all(sapply(permian_rings[, -1], sd, na.rm = TRUE) - 1 < tolerance))
 
 
@@ -171,3 +172,17 @@ ggplot(data.frame(cors, used = inMean$used), aes(x = cors, fill = used)) + geom_
 split(cors, inMean$used)
 
 
+## interseries
+cpr <- cor(permian_rings[, inMean$tree[inMean$used]], use = "pair")
+mean(cpr[lower.tri(cpr)])
+cor(permian_rings[, inMean$tree[inMean$used]], use = "pair") %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column(var = "tree1") %>%
+  gather(key = tree2, value = value, -tree1) %>%
+  mutate(value = ifelse(tree1 == tree2, NA, value)) %>%
+  ggplot(aes(x = tree1, y = tree2, fill = value)) + 
+  geom_raster() + 
+  scale_fill_gradient2()
+
+#estimate from dplR - different standardisation
+rwi.stats(permian_rings0[, inMean$tree[inMean$used]] + 0.5)
