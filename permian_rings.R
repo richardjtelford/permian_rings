@@ -194,3 +194,11 @@ cor(permian_rings[, inMean$tree[inMean$used]], use = "pair") %>%
 
 #estimate from dplR - different standardisation
 rwi.stats(permian_rings0[, inMean$tree[inMean$used]] + 0.5)
+rwi.stats(permian_rings0[, inMean$tree[inMean$used]] + 0.5, n = 30)
+
+#effect of hanning detrend length
+hanning_effect <- plyr::ldply(7:30, function(n){
+  stat <-rwi.stats(permian_rings0[, inMean$tree[inMean$used]] + 0.5, n = n)
+  c(n = n, rbar.eff = stat$rbar.eff)
+  }) 
+ggplot(hanning_effect, aes(x = n, y = rbar.eff)) + geom_line()
