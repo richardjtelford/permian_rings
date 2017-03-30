@@ -37,6 +37,14 @@ stdMean <- rowMeans(permian_rings[, inMean$tree[inMean$used]], na.rm = TRUE)
 cor(stdMean, permian_rings$mean_curve)
 cor(stdMean, permian_rings$mean_curve)^2
 
+#series length
+gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
+  left_join(inMean, by = c("tree" = "tree")) %>%
+  group_by(tree, used) %>%
+  summarise(length = sum(!is.na(width))) %>%
+  ggplot(aes(x = length, fill = used)) +
+  geom_histogram(bins = 20)
+  
 
 #plot data
 gather(permian_rings, key = tree, value = width, -index, -mean_curve) %>%
