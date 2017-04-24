@@ -1,3 +1,4 @@
+## ----everything
 #import packages
 library("readxl")
 library("ggplot2")
@@ -21,7 +22,8 @@ tolerance = .Machine$double.eps^0.5 # assumes Matlab has same precision
 
 assert_that(all(colMeans(permian_rings0[, -(1:2)], na.rm = TRUE) < tolerance))
 
-permian_rings[, -1] <- scale(permian_rings0[, -1])
+permian_rings <- permian_rings0
+permian_rings[, -1] <- scale(permian_rings[, -1])
 assert_that(all(sapply(permian_rings[, -1], sd, na.rm = TRUE) - 1 < tolerance))
 
 
