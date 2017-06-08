@@ -160,6 +160,18 @@ g %+% allSpec + aes(colour = .id)
 autoplot(acf(permian_rings$mean_curve))
 ar(permian_rings$mean_curve)
 
+allacf <- lapply(permian_rings[, inMean$tree[inMean$used]], function(tree){
+  tree <- na.omit(tree)
+  mod <- acf(tree, plot = FALSE)
+  autoplot(mod)
+})
+
+
+gridExtra::grid.arrange(grobs = allacf)
+
+
+
+
 
 # white noise smoothed
 specSim <- plyr::rdply(.n = 11, .expr = {
@@ -204,3 +216,57 @@ hanning_effect <- plyr::ldply(7:30, function(n){
   c(n = n, rbar.eff = stat$rbar.eff)
   }) 
 ggplot(hanning_effect, aes(x = n, y = rbar.eff)) + geom_line()
+
+
+
+##redfit
+
+fortify.redfit <- function(x){
+  data_frame(
+    freq = x[["freq"]], 
+    gxxc = x[["gxxc"]],
+    ci99 = x[["ci99"]],
+    ci95 = x[["ci95"]],
+    ci90 = x[["ci90"]]
+  ) %>% gather(key = key, value = value, -freq)
+  
+}
+    
+    
+    
+autoplot.redfit <- function(x){
+  if(class(x) == "redfit"){
+    x <- fortify.redfit(x)
+  }
+  
+  ggplot(x, aes(x = freq, y = value, colour = key)) +
+    geom_line() +
+    labs(y = "Spectrum (dB)", x = "Frequency (1/yr)")
+}
+
+
+redf.x <- redfit(x = permian_rings0$mean_curve, t = permian_rings0$index, tType = "age")
+
+autoplot(redf.x)
+
+set.seed(42)
+specSim <- plyr::rlply(.n = 12, .expr = {
+  tst <- rnorm(nrow(permian_rings) + 2)# * 100)
+  tst_3smooth <- rollmean(x = tst, k = 3)#rolling mean
+  spec3 <- redfit(tst_3smooth,  t = permian_rings0$index, tType = "age")
+  autoplot(spec3) + theme(legend.position = "none")
+  })
+
+gridExtra::grid.arrange(grobs = specSim)
+
+
+#individual trees
+allTrees <- lapply(permian_rings[, inMean$tree[inMean$used]], function(tree){
+  tree <- na.omit(tree)
+  mod <- redfit(x = tree, t = 1:length(tree), tType = "age")
+  autoplot(mod) + theme(legend.position = "none")
+})
+
+
+gridExtra::grid.arrange(grobs = allTrees)
+
